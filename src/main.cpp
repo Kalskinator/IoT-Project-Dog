@@ -33,6 +33,7 @@ void loop() {
   }
 
   mqtt.publish(topic.c_str(), telemetry.c_str(), true);
+  ESP_LOGI("[MQTT]", "Published");
 
   delay(1000);  // Adjust delay as necessary
 }
