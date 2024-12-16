@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <PubSubClient.h>
 #include <WiFi.h>
+#include "sensors.h" 
 
 
 #include "esp_log.h"
