@@ -6,11 +6,7 @@ void setup() {
   esp_log_level_set(LOG_TAG, ESP_LOG_VERBOSE);
 
   // WiFi connection (you need to configure SSID and Password)
-<<<<<<< Updated upstream
-  WiFi.begin("MexicoHotspot", "Nugget4lyfe");
-=======
   WiFi.begin("#Telia-8D7FD0", "*A38Y@2c(zA=unK1");
->>>>>>> Stashed changes
   while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       Serial.print(".");

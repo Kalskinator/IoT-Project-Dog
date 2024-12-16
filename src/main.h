@@ -3,10 +3,7 @@
 #include <Arduino.h>
 #include <PubSubClient.h>
 #include <WiFi.h>
-<<<<<<< Updated upstream
-=======
 #include "ArduinoJson.h"
->>>>>>> Stashed changes
 
 StaticJsonDocument<1024>     doc;
 JsonObject              jsonTelemetry;
