@@ -4,9 +4,18 @@ void setup() {
 
   // Initialize Serial DEBUG
   esp_log_level_set(LOG_TAG, ESP_LOG_VERBOSE);
+  // WiFi connection (you need to configure SSID and Password)
+/*   const char* ssid = getenv(SSID);
+  const char* password = getenv("PASSWORD"); */
+
+/*   if (ssid == nullptr || password == nullptr) {
+      ESP_LOGE("[WIFI]", "SSID or PASSWORD environment variable not set");
+      return;
+  } */
 
   // WiFi connection (you need to configure SSID and Password)
-  WiFi.begin("#Telia-8D7FD0", "*A38Y@2c(zA=unK1");
+
+  WiFi.begin("iot", "");
   while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       Serial.print(".");

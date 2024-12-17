@@ -8,6 +8,7 @@
 StaticJsonDocument<1024>     doc;
 JsonObject              jsonTelemetry;
 
+
 #include "sensors.h" 
 
 #include "esp_log.h"
