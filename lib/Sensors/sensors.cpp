@@ -1,30 +1,44 @@
 #include "sensors.h"
 
+// Define global variables here
+//BMP180
+Adafruit_BMP085 bmp;  // Initialize the BMP180 sensor
+bmp_measurement_t bmp180Measurement = {};  // Initialize struct with default values
+unsigned long bmp180LastMeasurementTime = 0;
+unsigned long bmp180MeasurementPeriod = 1000;
+unsigned long bmp180SampleNumber = 0;
 
-void read_BMP180 (){
-    Serial.print("Temperature = ");
-    Serial.print(bmp.readTemperature());
-    Serial.println(" *C");
-    
-    Serial.print("Pressure = ");
-    Serial.print(bmp.readPressure());
-    Serial.println(" Pa");
-    
-    // Calculate altitude assuming 'standard' barometric
-    // pressure of 1013.25 millibar = 101325 Pascal
-    Serial.print("Altitude = ");
-    Serial.print(bmp.readAltitude());
-    Serial.println(" meters");
+void detect_Sensors(void) {
 
-    Serial.print("Pressure at sealevel (calculated) = ");
-    Serial.print(bmp.readSealevelPressure());
-    Serial.println(" Pa");
-
-  // you can get a more precise measurement of altitude
-  // if you know the current sea level pressure which will
-  // vary with weather and such. If it is 1015 millibars
-  // that is equal to 101500 Pascals.
-    Serial.print("Real altitude = ");
-    Serial.print(bmp.readAltitude(101500));
-    Serial.println(" meters");
+  if(bmp.begin()){
+    ESP_LOGI("SENSORS", "BMP180 detected");
+  } else {
+    ESP_LOGE("SENSORS", "BMP180 wasn't detected");
+  }
 }
+
+
+
+void read_BMP180 () {
+
+    unsigned long now = millis();
+
+    if (now - bmp180LastMeasurementTime > bmp180MeasurementPeriod) {
+
+
+        bmp180Measurement.temp              = bmp.readTemperature();
+        bmp180Measurement.pressure          = bmp.readPressure();
+        bmp180Measurement.altitude          = bmp.readAltitude();
+        bmp180Measurement.seaLevelPressure  = bmp.readSealevelPressure();
+        bmp180Measurement.realAltitude      = bmp.readAltitude(SEA_LEVEL_PRESSURE);
+        
+        bmp180SampleNumber++; //might need later if do an avg. filter
+
+        bmp180LastMeasurementTime = now;
+
+        
+
+    }
+
+}
+

@@ -14,6 +14,7 @@ void setup() {
   } */
 
   // WiFi connection (you need to configure SSID and Password)
+
   WiFi.begin("iot", "");
   while (WiFi.status() != WL_CONNECTED) {
       delay(500);
@@ -21,27 +22,40 @@ void setup() {
   }
   ESP_LOGI("[WIFI]", "WiFi Connected");
 
+  detect_Sensors();
+
   // MQTT setup
   mqtt.setServer(endpoint.c_str(), 1883);
   ESP_LOGI("[MQTT]", "MQTT Configured");
 
   mqtt.connect(token.c_str(),token.c_str(),"");
+
+  delay(1000);
+
 }
 
 void loop() {
+
+  //TODO: Read sensor func
+  read_BMP180();
+
   mqtt.loop();  // Maintain MQTT connection
   if (!mqtt.connected()) {
       if (mqtt.connect(devicename.c_str(), token.c_str(), "")) {
-          ESP_LOGI("[MQTT]", "MQTT Connected");
+          ESP_LOGI("MQTT", "MQTT Connected");
       } else {
-          ESP_LOGW("[MQTT]", "Failed to connect to MQTT");
+          ESP_LOGW("MQTT", "Failed to connect to MQTT");
           delay(5000);  // Wait before retrying
           return;
       }
   }
-
+  
+  PayloadPrepare();
+  String telemetry;
+  serializeJson( jsonTelemetry, telemetry );
+  ESP_LOGI("TELEMETRY", "%s", telemetry.c_str());
   mqtt.publish(topic.c_str(), telemetry.c_str(), true);
-  ESP_LOGI("[MQTT]", "Published");
+  ESP_LOGI("MQTT", "Published");
 
   delay(1000);  // Adjust delay as necessary
 }
