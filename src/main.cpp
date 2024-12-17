@@ -22,7 +22,7 @@ void setup() {
   }
   ESP_LOGI("[WIFI]", "WiFi Connected");
 
-  detect_Sensors();
+  detectSensors();
 
   // MQTT setup
   mqtt.setServer(endpoint.c_str(), 1883);
@@ -35,27 +35,28 @@ void setup() {
 }
 
 void loop() {
-
-  //TODO: Read sensor func
-  read_BMP180();
-
-  mqtt.loop();  // Maintain MQTT connection
-  if (!mqtt.connected()) {
-      if (mqtt.connect(devicename.c_str(), token.c_str(), "")) {
-          ESP_LOGI("MQTT", "MQTT Connected");
-      } else {
-          ESP_LOGW("MQTT", "Failed to connect to MQTT");
-          delay(5000);  // Wait before retrying
-          return;
-      }
-  }
-  
-  PayloadPrepare();
-  String telemetry;
-  serializeJson( jsonTelemetry, telemetry );
-  ESP_LOGI("TELEMETRY", "%s", telemetry.c_str());
-  mqtt.publish(topic.c_str(), telemetry.c_str(), true);
-  ESP_LOGI("MQTT", "Published");
-
-  delay(1000);  // Adjust delay as necessary
+  pox.update();
+  collectData();
+  unsigned long now = millis();
+    if (now - lastMeasurementUpload > (unsigned long) measurement_time*1000){
+      mqtt.loop();  // Maintain MQTT connection
+        if (!mqtt.connected()) {
+            if (mqtt.connect(devicename.c_str(), token.c_str(), "")) {
+                ESP_LOGI("MQTT", "MQTT Connected");
+            } else {
+                ESP_LOGW("MQTT", "Failed to connect to MQTT");
+                delay(5000);  // Wait before retrying
+                return;
+            }
+        }
+        
+        PayloadPrepare();
+        resetData();
+        String telemetry;
+        serializeJson( jsonTelemetry, telemetry );
+        ESP_LOGI("TELEMETRY", "%s", telemetry.c_str());
+        mqtt.publish(topic.c_str(), telemetry.c_str(), true);
+        ESP_LOGI("MQTT", "Published");
+        lastMeasurementUpload = now;
+    }
 }
