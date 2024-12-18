@@ -5,17 +5,18 @@
 #include <PubSubClient.h>
 #include <WiFi.h>
 #include "ArduinoJson.h"
+
 #include <Adafruit_BMP085.h>
+
+#include "secrets.h"
+#include "esp_log.h"
+
 
 StaticJsonDocument<1024>     doc;
 JsonObject              jsonTelemetry;
 
 
-/* #include "sensors.h" */
-
-#include "esp_log.h"
 static const char* LOG_TAG = "[SYSTEM]"; 
-
 
 WiFiClient wifi;
 PubSubClient mqtt(wifi);
@@ -101,6 +102,7 @@ void resetData(){
 
 
 }
+
 
 
 void PayloadPrepare (void) {

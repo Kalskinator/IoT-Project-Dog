@@ -2,6 +2,7 @@
 Arduino-MAX30100 oximetry / heart rate integrated sensor library
 Copyright (C) 2016  OXullo Intersecans <x@brainrapers.org>
 
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -21,12 +22,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <Arduino.h>
 #include "main.h"
 
-void setup()
-{
-  esp_log_level_set(LOG_TAG, ESP_LOG_VERBOSE);
 
-    
-  WiFi.begin("iot", "");
+
+void setup() {
+
+  // Initialize Serial DEBUG
+  esp_log_level_set(LOG_TAG, ESP_LOG_VERBOSE);
+  // WiFi connection (you need to configure SSID and Password)
+
+
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
   while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       Serial.print(".");
