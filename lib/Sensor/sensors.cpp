@@ -1,73 +1,20 @@
-#pragma once
-#include <Wire.h>
-#include "MAX30100_PulseOximeter.h"
-#include <Arduino.h>
-#include <PubSubClient.h>
-#include <WiFi.h>
-#include "ArduinoJson.h"
+#include "sensors.h"
 
-#include <Adafruit_BMP085.h>
-
-#include "secrets.h"
-#include "esp_log.h"
-
-
-StaticJsonDocument<1024>     doc;
-JsonObject              jsonTelemetry;
-
-
-static const char* LOG_TAG = "[SYSTEM]"; 
-
-WiFiClient wifi;
-PubSubClient mqtt(wifi);
-
-String devicename = "Collar_A001";
-String endpoint = "mqtt.thingsboard.cloud";
-String topic = "v1/devices/me/telemetry";
-String token = "DcuXXsX2ZC2tkJvGdElV";
-
-unsigned long           lastMeasurementUpload = 0;
-unsigned int            measurement_time = 20;  //in sec 
-
-
+// Define global variables here
 //BMP180
-typedef struct {
-    float temp;
-    float pressure;
-    float altitude;
-    float seaLevelPressure;
-    float realAltitude;
-} bmp_measurement_t;
+Adafruit_BMP085 bmp;  // Initialize the BMP180 sensor
+bmp_measurement_t bmp180Measurement = {};  // Initialize struct with default values
+unsigned long bmp180LastMeasurementTime = 0;
+unsigned long bmp180MeasurementPeriod = 100;
+unsigned long bmp180SampleNumber = 0;
 
-Adafruit_BMP085                 bmp;  // Initialize the BMP180 sensor
-bmp_measurement_t               bmp180Measurement = {};  // Initialize struct with default values
-unsigned long                   bmp180LastMeasurementTime = 0;
-unsigned long                   bmp180MeasurementPeriod = 100;
-unsigned long                   bmp180SampleNumber = 0;
-const float                     SEA_LEVEL_PRESSURE = 1015.00;  // Adjust based on your location
-
-void read_BMP180 ();
-void Bmp180AddToAverage (bmp_measurement_t& m);
-void bmp180Reset (void);
-
-//MAX30010 - M5
-typedef struct{
-    float heartrate;
-    float sp02;
-} max30100_measurement_t;
-
-PulseOximeter                   pox;
+//MAX30100
+PulseOximeter       pox;
 max30100_measurement_t          max30100Measurement = {};
-unsigned long                   max30100LastMeasurementTime = 0;
-unsigned long                   max30100MeasurementPeriod = 50;
-unsigned long                   max30100SampleNumber = 0;
+unsigned long           max30100LastMeasurementTime = 0;
+unsigned long           max30100MeasurementPeriod = 1000;
+unsigned long           max30100SampleNumber = 0;
 
-
-void read_MAX30100 ();
-void max30100AddToAverage (max30100_measurement_t& m);
-void max30100Reset (void);
-
-//main functions
 void detectSensors(void) {
 
   if(bmp.begin()){
@@ -86,7 +33,9 @@ void detectSensors(void) {
 
 
 void collectData (void) {
+
   //TODO: if bmp180 decteced.
+
   read_BMP180();
 
   //TODO: if MAX30100 detected
@@ -102,32 +51,6 @@ void resetData(){
 
 
 }
-
-
-
-void PayloadPrepare (void) {
-
-    static uint continuousMessages = 0;
-
-    // Create the values object inside the document
-    jsonTelemetry.clear();
-    JsonObject values;
-    values = doc.to<JsonObject>();
-
-    //TODO: IF BMP180 detected. 
-    values["BMP180_TEMP"]              = bmp180Measurement.temp;
-    values["BMP180_PRESSURE"]          = bmp180Measurement.pressure;
-    values["BMP180_ALTITUDE"]          = bmp180Measurement.altitude;
-    values["BMP180_SEALEVELPRES"]      = bmp180Measurement.seaLevelPressure;
-    values["BMP180_REALALTITUDE"]      = bmp180Measurement.realAltitude;
-
-     //TODO:
-    values["MAX30100_HeartRate"]       = max30100Measurement.heartrate;
-    values["MAX30100_SP02"]            = max30100Measurement.sp02; 
-    
-    jsonTelemetry = values;
-}
-
 
 
 // BMP180
@@ -186,6 +109,8 @@ void read_MAX30100 () {
       max30100_measurement_t current_measurement;
       current_measurement.heartrate = pox.getHeartRate();
       current_measurement.sp02      = pox.getSpO2();
+      ESP_LOGI("MAX30100", "%f", current_measurement.heartrate);
+      ESP_LOGI("MAX30100", "%f", current_measurement.sp02 );
 
       max30100SampleNumber++;
       max30100LastMeasurementTime = now;
@@ -208,4 +133,3 @@ void max30100Reset (void) {
     memset(&max30100Measurement, 0, sizeof(max30100Measurement));
     max30100SampleNumber = 0;
 }
-
