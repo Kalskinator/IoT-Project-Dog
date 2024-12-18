@@ -11,9 +11,9 @@ unsigned long bmp180SampleNumber = 0;
 //MAX30100
 PulseOximeter       pox;
 max30100_measurement_t          max30100Measurement = {};
-extern  unsigned long           max30100LastMeasurementTime = 0;
-extern  unsigned long           max30100MeasurementPeriod = 100;
-extern  unsigned long           max30100SampleNumber = 0;
+unsigned long           max30100LastMeasurementTime = 0;
+unsigned long           max30100MeasurementPeriod = 1000;
+unsigned long           max30100SampleNumber = 0;
 
 void detectSensors(void) {
 
@@ -34,7 +34,8 @@ void detectSensors(void) {
 
 void collectData (void) {
 
-  //TODO: if bmp180 decteced. 
+  //TODO: if bmp180 decteced.
+
   read_BMP180();
 
   //TODO: if MAX30100 detected
